@@ -4,6 +4,8 @@ language: go
 go:
 - 1.12.x
 sudo: false
+env:
+  - GO111MODULE=1
 jobs:
   include:
   - stage: Unit tests
