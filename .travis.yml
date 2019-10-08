@@ -5,7 +5,7 @@ go:
 - 1.12.x
 sudo: false
 env:
-  - GO111MODULE=1
+  - GO111MODULE=on
 jobs:
   include:
   - stage: Unit tests
