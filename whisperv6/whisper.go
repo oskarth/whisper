@@ -905,7 +905,7 @@ func (whisper *Whisper) runMessageLoop(p *Peer, rw p2p.MsgReadWriter) error {
 			data, err := ioutil.ReadAll(packet.Payload)
 			if err != nil {
 				log.Warn("failed to read envelopes data", "peer", p.peer.ID(), "error", err)
-				return errors.New("invalid enveloopes")
+				return errors.New("invalid envelopes")
 			}
 
 			var envelopes []*Envelope
@@ -1146,6 +1146,7 @@ func (whisper *Whisper) runMessageLoop(p *Peer, rw p2p.MsgReadWriter) error {
 // appropriate time-stamp. In case of error, connection should be dropped.
 // param isP2P indicates whether the message is peer-to-peer (should not be forwarded).
 func (whisper *Whisper) add(envelope *Envelope, isP2P bool) (bool, error) {
+	log.Warn("XXX envelope add")
 	now := uint32(whisper.timeSource().Unix())
 	sent := envelope.Expiry - envelope.TTL
 
@@ -1166,7 +1167,7 @@ func (whisper *Whisper) add(envelope *Envelope, isP2P bool) (bool, error) {
 			log.Warn("very old envelope", "hash", envelope.Hash())
 			return false, TimeSyncError(errors.New("very old envelope"))
 		}
-		log.Debug("expired envelope dropped", "hash", envelope.Hash().Hex())
+		log.Debug("XXX expired envelope dropped", "hash", envelope.Hash().Hex())
 		envelopeErrExpiredCounter.Inc(1)
 		return false, nil // drop envelope without error
 	}
@@ -1177,10 +1178,12 @@ func (whisper *Whisper) add(envelope *Envelope, isP2P bool) (bool, error) {
 	}
 
 	if envelope.PoW() < whisper.MinPow() {
+		log.Warn("XXX envelope PoW lower than MinPow", "PoW", envelope.Pow(), "MinPow", whisper.MinPow())
 		// maybe the value was recently changed, and the peers did not adjust yet.
 		// in this case the previous value is retrieved by MinPowTolerance()
 		// for a short period of peer synchronization.
 		if envelope.PoW() < whisper.MinPowTolerance() {
+			log.Warn("XXX envelope PoW lower than MinPowTolerance", "PoW", envelope.Pow(), "MinPowTolerance", whisper.MinPowTolerance())
 			envelopeErrLowPowCounter.Inc(1)
 			return false, fmt.Errorf("envelope with low PoW received: PoW=%f, hash=[%v]", envelope.PoW(), envelope.Hash().Hex())
 		}
